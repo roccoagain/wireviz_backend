@@ -38,6 +38,3 @@ plt.grid(True, which="both")
 plt.legend()
 
 plt.show()
-
-
-

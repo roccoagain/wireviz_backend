@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 data = np.loadtxt("rc_lpf_data.csv")
 
 # time freq 0 time mag_db time phase_deg
-freq = data[:, 1]      # Frequency (Hz)
-mag_db = data[:, 4]    # Magnitude (dB)
+freq = data[:, 1]  # Frequency (Hz)
+mag_db = data[:, 4]  # Magnitude (dB)
 
 # sort data by frequency in case its not
 sorted_indices = np.argsort(freq)
@@ -17,7 +17,9 @@ mag_db = mag_db[sorted_indices]
 
 # save to csv
 output_data = np.column_stack((freq, mag_db))
-np.savetxt("freq_mag_for_desmos.csv", output_data, delimiter=",", comments="", fmt="%.6f")
+np.savetxt(
+    "freq_mag_for_desmos.csv", output_data, delimiter=",", comments="", fmt="%.6f"
+)
 
 print("CSV file 'freq_mag_for_desmos.csv' saved successfully!")
 
