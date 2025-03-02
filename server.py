@@ -1,44 +1,54 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, make_response, jsonify
 import subprocess
+import os.path
 
 app = Flask(__name__)
 
-
 @app.route("/upload", methods=["POST"])
 def upload_netlist():
-    # get netlist from request
-    if "netlist" not in request.files:
-        return "No netlist file provided", 400
-
-    netlist_file = request.files["netlist"]
-
-    # save the netlist file
+    # get text from request body
+    if not request.data:
+        return "No netlist text provided", 400
+        
+    netlist_text = request.data.decode("utf-8")
+    
+    # remove markdown code block markers if present
+    if netlist_text.startswith("```") and netlist_text.endswith("```"):
+        # remove first line
+        first_newline = netlist_text.find("\n")
+        if first_newline != -1:
+            netlist_text = netlist_text[first_newline + 1 :]
+        # remove last line
+        last_newline = netlist_text.rfind("\n")
+        if last_newline != -1:
+            netlist_text = netlist_text[:last_newline]
+    
+    # save the netlist text to file
     netlist_path = "received_netlist.cir"
-    netlist_file.save(netlist_path)
-
+    with open(netlist_path, "w") as f:
+        f.write(netlist_text)
+    
     # simulate the netlist with ngspice
-    subprocess.run(["ngspice", "-b", netlist_path], check=True)
-
-    # ngspice output -> csv
-    subprocess.run(["python", "toDesmos.py"], check=True)
-
-    # return the csv
-    return send_file(
-        "freq_mag_for_desmos.csv",
-        as_attachment=True,
-        download_name="freq_mag_for_desmos.csv",
-    )
-
-
-@app.route("/download")
-def download():
-    # send the last csv to the client
-    return send_file(
-        "freq_mag_for_desmos.csv",
-        as_attachment=True,
-        download_name="freq_mag_for_desmos.csv",
-    )
-
+    try:
+        subprocess.run(["ngspice", "-b", netlist_path], check=True)
+        
+        # ngspice output -> csv and plot
+        subprocess.run(["python", "plot.py"], check=True)
+        print("Simulation and plot generation successful!")
+        
+        # return the image file
+        if os.path.exists("bode_plot.png"):
+            return send_file(
+                "bode_plot.png",
+                mimetype="image/png",
+                as_attachment=True,
+                download_name="bode_plot.png",
+            )
+        else:
+            return "Plot generation failed", 500
+            
+    except subprocess.CalledProcessError as e:
+        return f"Simulation failed: {str(e)}", 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

@@ -1,0 +1,18 @@
+* RC High-Pass Filter Netlist for ngspice
+
+* Input source with AC amplitude = 1 V
+Vin in 0 AC 1
+
+* High-pass filter: C in series, R to ground
+C1 in out 1uF
+R1 out 0 1k
+
+.control
+  * Perform an AC analysis from 10 Hz to 100 MHz in decade steps
+  ac dec 100 10 100MEG
+  
+  * Write frequency response data to CSV
+  wrdata rc_hpf_data.csv frequency vdb(out) vp(out)
+.endc
+
+.end
