@@ -4,18 +4,6 @@ import matplotlib.pyplot as plt
 # Load the data from file (whitespace-delimited)
 data = np.loadtxt("output.csv")
 
-# Export frequency and magnitude to CSV for Desmos
-freq_mag_data = np.column_stack((data[:, 1], data[:, 4]))
-sorted_indices = np.argsort(freq_mag_data[:, 0])
-freq_mag_data = freq_mag_data[sorted_indices]
-np.savetxt(
-    "freq_mag_for_desmos.csv",
-    freq_mag_data,
-    delimiter=",",
-    header="frequency,magnitude_db",
-    comments="",
-)
-
 # columns go
 # time freq 0 time mag_db time phase_deg
 freq = data[:, 1]  # Frequency (Hz)
