@@ -1,4 +1,4 @@
-# this script turns the monstrous 7 column sim output to freq, mag_dbs csv that we can plot it in desmos on the ipad
+# this script turns the monstrous 7 column sim output to freq, mag_dbs csv that we can plot in desmos on the ipad
 
 import numpy as np
 import matplotlib.pyplot as plt
